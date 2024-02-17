@@ -3,7 +3,7 @@ from . import db
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(80), nullable=False)  # Store hashed passwords
+    password = db.Column(db.String(512), nullable=False)  # Store hashed passwords
     specialization = db.Column(db.String(120))
     points = db.Column(db.Integer, default=0)
     role = db.Column(db.String(80))

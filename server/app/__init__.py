@@ -2,6 +2,9 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+import os
+from dotenv import load_dotenv
+load_dotenv() 
 
 db = SQLAlchemy()
 jwt = JWTManager()
@@ -12,7 +15,8 @@ def create_app():
     CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
 
     app.config.from_pyfile('config.py')
-    
+    print("Database URI1:", os.environ.get("DB_SECRET_KEY"))
+    print("Database URI:", os.environ.get("SQLALCHEMY_DATABASE_URI"))
 
     db.init_app(app)
     jwt.init_app(app)
