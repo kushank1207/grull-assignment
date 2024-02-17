@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://127.0.0.1:8000';
+const API_URL = 'https://grull-backend.onrender.com/';
 
 export const register = (username, password, specialization) => {
   return axios.post(`${API_URL}/api/register`, {
