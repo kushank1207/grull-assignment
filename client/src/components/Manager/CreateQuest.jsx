@@ -9,7 +9,6 @@ const CreateQuest = () => {
     description: "",
     duration: "",
     reward: 0,
-    points: 0,
   });
   const navigate = useNavigate();
 
@@ -79,17 +78,6 @@ const CreateQuest = () => {
             type="number"
             name="reward"
             value={formData.reward}
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
-
-        <Form.Group className="mb-3" controlId="formBasicPoints">
-          <Form.Label>Points</Form.Label>
-          <Form.Control
-            type="number"
-            name="points"
-            value={formData.points}
             onChange={handleChange}
             required
           />

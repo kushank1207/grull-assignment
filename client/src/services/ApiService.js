@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = 'https://grull-backend.onrender.com/';
+const API_URL = 'http://127.0.0.1:8000';
+// const API_URL = 'https://grull-backend.onrender.com/';
 
 export const register = (username, password, specialization) => {
   return axios.post(`${API_URL}/api/register`, {
@@ -27,7 +28,7 @@ export const fetchQuests = (token) => {
 };
 
 export const createQuest = (token, title, description, duration, reward, points) => {
-  return axios.post(`${API_URL}/quests`, { title, description, duration, reward, points }, {
+  return axios.post(`${API_URL}/quests`, { title, description, duration, reward }, {
     headers: {
       Authorization: `Bearer ${token}`
     }

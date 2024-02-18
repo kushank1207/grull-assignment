@@ -4,7 +4,6 @@ import {
   BrowserRouter as Router,
   Route,
   Routes,
-  Navigate,
 } from "react-router-dom";
 import Register from "./components/Register";
 import Login from "./components/Login";
@@ -20,17 +19,8 @@ function App() {
       <div>
         <NavigationBar />
         <Routes>
-          <Route
-            path="/"
-            element={
-              localStorage.getItem("role") === "community_manager" ? (
-                <Navigate to="/manager-dashboard" />
-              ) : (
-                <Navigate to="/user-dashboard" />
-              )
-            }
-          />
           <Route path="/register" element={<Register />} />
+          <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/quests" element={<Quests />} />
           <Route path="/createquest" element={<CreateQuest />} />

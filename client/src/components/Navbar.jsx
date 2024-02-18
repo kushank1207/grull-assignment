@@ -4,38 +4,39 @@ import { LinkContainer } from "react-router-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 const NavigationBar = () => {
-  const useLogout = () => {
-    const navigate = useNavigate();
-    const handleLogout = () => {
-      localStorage.removeItem("token");
-      navigate("/login");
-    };
-    return handleLogout;
+  const navigate = useNavigate(); // Use useNavigate directly in the component
+  const isLoggedIn = !!localStorage.getItem("token");
+  const userRole = localStorage.getItem("role");
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role"); // Consider also removing the role on logout
+    navigate("/login");
   };
 
-  const handleLogout = useLogout();
   return (
     <Navbar bg="light" expand="lg">
       <Container>
-        <LinkContainer to="/">
-          <Navbar.Brand>Quest App</Navbar.Brand>
+        <LinkContainer
+          to={
+            isLoggedIn
+              ? userRole === "community_manager"
+                ? "/manager-dashboard"
+                : "/user-dashboard"
+              : "/"
+          }
+        >
+          <Navbar.Brand>Netropolis</Navbar.Brand>
         </LinkContainer>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <LinkContainer to="/quests">
-              <Nav.Link>Quests</Nav.Link>
-            </LinkContainer>
-            <LinkContainer to="/createquest">
-              <Nav.Link>Create Quest</Nav.Link>
-            </LinkContainer>
-            <LinkContainer to="/login">
-              <Nav.Link>Login</Nav.Link>
-            </LinkContainer>
-            <LinkContainer to="/register">
-              <Nav.Link>Signup</Nav.Link>
-            </LinkContainer>
-            <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
+            {isLoggedIn && userRole === "community_manager" && (
+              <LinkContainer to="/createquest">
+                <Nav.Link>Create Quest</Nav.Link>
+              </LinkContainer>
+            )}
+            {isLoggedIn && <Nav.Link onClick={handleLogout}>Logout</Nav.Link>}
           </Nav>
         </Navbar.Collapse>
       </Container>
