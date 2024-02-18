@@ -11,7 +11,16 @@ class User(db.Model):
 class Quest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120), nullable=False)
-    description = db.Column(db.String(300))
-    duration = db.Column(db.String(50))
-    reward = db.Column(db.Integer)
-    points = db.Column(db.Integer)
+    description = db.Column(db.String(300), nullable=False)
+    reward = db.Column(db.Integer, nullable=False)
+    manager_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    manager = db.relationship('User', backref=db.backref('quests', lazy=True))
+
+class Application(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    quest_id = db.Column(db.Integer, db.ForeignKey('quest.id'), nullable=False)
+    status = db.Column(db.String(50), default='pending')
+    quest = db.relationship('Quest', backref=db.backref('applications', lazy=True))
+    user = db.relationship('User', backref=db.backref('applications', lazy=True))
+
