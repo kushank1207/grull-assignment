@@ -38,20 +38,8 @@ export const updateQuest = (token, questId, questData) => {
   });
 };
 
-export const deleteQuest = (token, questId) => {
-  return axios.delete(`${API_URL}/quests/${questId}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-};
-
 export const fetchQuestDetails = (token, questId) => {
   return axios.get(`${API_URL}/quests/${questId}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-};
-
-export const updateUserProfile = (token, userData) => {
-  return axios.put(`${API_URL}/user/profile`, userData, {
     headers: { Authorization: `Bearer ${token}` }
   });
 };

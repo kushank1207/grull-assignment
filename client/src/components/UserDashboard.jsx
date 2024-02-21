@@ -14,6 +14,7 @@ import {
   DropdownButton,
   Dropdown,
 } from "react-bootstrap";
+import { fuzzySearchEnhanced } from "./searchAlgo/fuzzy";
 
 const UserDashboard = () => {
   const [allQuests, setAllQuests] = useState([]);
@@ -46,17 +47,19 @@ const UserDashboard = () => {
   }, []);
 
   useEffect(() => {
-    const filteredQuests = allQuests.filter((quest) => {
-      if (!searchTerm) return true;
-      if (searchType === "exact") {
-        return quest.description.toLowerCase().includes(searchTerm.toLowerCase());
-      } else if (searchType === "fuzzy") {
-        // Implement fuzzy search logic here
-      } else if (searchType === "NLP") {
-        // Implement NLP search logic here
-      }
-      return false;
-    });
+    let filteredQuests = [];
+    if (!searchTerm) {
+      filteredQuests = allQuests;
+    } else if (searchType === "exact") {
+      filteredQuests = allQuests.filter((quest) =>
+        quest.description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    } else if (searchType === "fuzzy") {
+      // Use fuzzySearchEnhanced for fuzzy search
+      filteredQuests = fuzzySearchEnhanced(searchTerm, allQuests);
+    } else if (searchType === "NLP") {
+      // Implement NLP search logic here
+    }
     setQuests(filteredQuests);
   }, [searchTerm, searchType, allQuests]);
 
