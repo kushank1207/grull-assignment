@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Form, Button, Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { createQuest } from "../../services/ApiService";
+import { createQuest } from "../services/ApiService";
 
 const CreateQuest = () => {
   const [formData, setFormData] = useState({
@@ -20,7 +20,7 @@ const CreateQuest = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
-    const userRole = localStorage.getItem("role");
+    // const userRole = localStorage.getItem("role");
     if (!token) {
       alert("You must be logged in to create a quest.");
       return;

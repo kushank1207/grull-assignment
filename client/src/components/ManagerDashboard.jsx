@@ -3,7 +3,7 @@ import {
   getManagerQuests,
   getApplicationsForQuest,
   updateApplicationStatus,
-} from "../../services/ApiService";
+} from "../services/ApiService";
 import { Card, Row, Col, Button } from "react-bootstrap";
 
 const ManagersDashboard = () => {

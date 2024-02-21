@@ -7,11 +7,10 @@ import {
 } from "react-router-dom";
 import Register from "./components/Register";
 import Login from "./components/Login";
-import Quests from "./components/User/Quests";
-import CreateQuest from "./components/Manager/CreateQuest";
+import CreateQuest from "./components/CreateQuest";
 import NavigationBar from "./components/Navbar";
-import ManagerDashboard from "./components/Manager/ManagerDashboard";
-import UserDashboard from "./components/User/UserDashboard";
+import ManagerDashboard from "./components/ManagerDashboard";
+import UserDashboard from "./components/UserDashboard";
 
 function App() {
   return (
@@ -22,7 +21,6 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/quests" element={<Quests />} />
           <Route path="/createquest" element={<CreateQuest />} />
           <Route path="/user-dashboard" element={<UserDashboard />} />
           <Route path="/manager-dashboard" element={<ManagerDashboard />} />

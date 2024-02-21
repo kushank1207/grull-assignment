@@ -3,7 +3,7 @@ import {
   fetchQuests,
   applyForQuest,
   fetchUserApplications,
-} from "../../services/ApiService";
+} from "../services/ApiService";
 import {
   Card,
   Row,
