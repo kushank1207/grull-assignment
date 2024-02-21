@@ -7,28 +7,31 @@ const CreateQuest = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    duration: "",
     reward: 0,
   });
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const value = e.target.type === "number" ? Number(e.target.value) : e.target.value;
+    const value =
+      e.target.type === "number" ? Number(e.target.value) : e.target.value;
     setFormData({ ...formData, [e.target.name]: value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
+    const userRole = localStorage.getItem("role");
     if (!token) {
       alert("You must be logged in to create a quest.");
       return;
     }
 
     try {
-      await createQuest(token, formData);
+      const { title, description, reward } = formData;
+      console.log("Creating quest:", title, description, reward, token);
+      await createQuest(title, description, reward, token);
       alert("Quest created successfully!");
-      navigate("/quests"); // Redirect to quests page
+      navigate('/manager-dashboard')
     } catch (error) {
       console.error("Error creating quest:", error);
       alert("Failed to create quest.");
@@ -56,17 +59,6 @@ const CreateQuest = () => {
             rows={3}
             name="description"
             value={formData.description}
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
-
-        <Form.Group className="mb-3" controlId="formBasicDuration">
-          <Form.Label>Duration</Form.Label>
-          <Form.Control
-            type="text"
-            name="duration"
-            value={formData.duration}
             onChange={handleChange}
             required
           />

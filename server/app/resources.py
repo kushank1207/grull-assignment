@@ -54,14 +54,16 @@ class QuestList(Resource):
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
         if not user:
-            return jsonify({'message': 'User not found'}), 404
+            # Directly return a dictionary; Flask-RESTful will handle serialization
+            return {'message': 'User not found'}, 404
         
         if user.role == 'community_manager':
             quests = Quest.query.filter_by(manager_id=user_id).all()
         else:
             quests = Quest.query.all()
-        
-        return jsonify([{'id': q.id, 'title': q.title, 'description': q.description, 'reward': q.reward} for q in quests]), 200
+
+        quests_data = [{'id': q.id, 'title': q.title, 'description': q.description, 'reward': q.reward} for q in quests]
+        return quests_data, 200
 
     @jwt_required()
     def post(self):
@@ -72,9 +74,14 @@ class QuestList(Resource):
         
         data = quest_parser.parse_args()
         new_quest = Quest(title=data['title'], description=data['description'], reward=data['reward'], manager_id=user_id)
-        db.session.add(new_quest)
-        db.session.commit()
-        return jsonify({'message': 'Quest created successfully', 'quest_id': new_quest.id}), 201
+        try:
+            db.session.add(new_quest)
+            db.session.commit()
+            return {'message': 'Quest created successfully', 'quest_id': new_quest.id}, 201
+        except Exception as e:
+            db.session.rollback()
+            return {'message': 'Failed to create quest', 'error': str(e)}, 500
+
     
     @jwt.additional_claims_loader
     def add_claims_to_access_token(identity):
@@ -84,42 +91,81 @@ class QuestList(Resource):
             'username': user.username,
             'role': user.role
         }
-
+    
 application_parser = reqparse.RequestParser()
-application_parser.add_argument('quest_id', type=int, required=True, help="Quest ID cannot be blank.")
-application_parser.add_argument('user_id', type=int, required=True, help="User ID cannot be blank.")
-application_parser.add_argument('application_text', required=False, help="Optional application text.")
+application_parser.add_argument('application_text', type=str, help="Application text is optional.", required=False)
 
-class ConfirmApplication(Resource):
+class ApplyToQuest(Resource):
     @jwt_required()
-    def post(self):
-        data = application_parser.parse_args()
-        new_application = Application(
-            quest_id=data['quest_id'],
-            user_id=get_jwt_identity(),  # Assuming JWT identity is the user's ID
-            application_text=data.get('application_text', '')
-        )
-        db.session.add(new_application)
+    def post(self, quest_id):
+        user_id = get_jwt_identity()
+        parser = reqparse.RequestParser()
+        parser.add_argument('application_text', required=True, help="Application text cannot be blank.")
+        args = parser.parse_args()
+        
+        application = Application(quest_id=quest_id, user_id=user_id, application_text=args['application_text'])
+        db.session.add(application)
         db.session.commit()
-        return {'message': 'Application submitted successfully'}, 201
+        return {'message': 'Application submitted successfully', 'application_id': application.id}, 201
 
-application_update_parser = reqparse.RequestParser()
-application_update_parser.add_argument('status', required=True, help="Status cannot be blank.", choices=('pending', 'approved', 'rejected'))
-application_update_parser.add_argument('feedback', required=False, help="Optional feedback on the application.")
-class UpdateApplicationStatus(Resource):
+# retreives all applications of the user
+class ApplicationList(Resource):    
     @jwt_required()
-    def put(self, application_id):
-        data = application_update_parser.parse_args()
+    def get(self):
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        print("user", user)
+        if not user:
+            return {'message': 'User not found'}, 404
+        applications = Application.query.filter_by(user_id=user_id).all()
+        applications_data = [{
+            'id': app.id,
+            'quest_id': app.quest_id,
+            'user_id': app.user_id,
+            'status': app.status,
+            'application_text': app.application_text
+        } for app in applications]
+        return applications_data, 200
+
+# retreives application of a specific quest
+class ApplicationListQuest(Resource):
+    @jwt_required()
+    def get(self, quest_id):
+        user_id = get_jwt_identity()
+        quest = Quest.query.get_or_404(quest_id)
+        if not quest or quest.manager_id != user_id:
+            return {'message': 'Unauthorized to view applications for this quest'}, 403
+
+        applications = Application.query.filter_by(quest_id=quest_id).all()
+        applications_data = [{
+            'id': app.id,
+            'quest_id': app.quest_id,
+            'user_id': app.user_id,
+            'status': app.status,
+            'application_text': app.application_text
+        } for app in applications]
+
+        return jsonify(applications_data)
+        
+class ApplicationUpdate(Resource):
+    @jwt_required()
+    def put(self, application_id, status):
+        if status not in ['pending', 'approved', 'rejected']:
+            return {'message': 'Invalid status value'}, 400
+
+        user_id = get_jwt_identity()
         application = Application.query.get_or_404(application_id)
 
-        if get_jwt_identity() != application.quest.manager_id:
+        # ensuring whether the user is the manager of the quest
+        quest = Quest.query.get_or_404(application.quest_id)
+        if quest.manager_id != user_id:
             return {'message': 'Unauthorized'}, 403
-        
-        application.status = data['status']
-        application.feedback = data.get('feedback', '')
+
+        application.status = status
         db.session.commit()
-        return {'message': 'Application status updated successfully'}, 200
-    
+        return {'message': 'Application status updated successfully'}
+
+
 class UploadCSV(Resource):
     pass
     

@@ -32,6 +32,10 @@ const Login = () => {
     }
   };
 
+  const handleRegister = () => {
+    navigate('/register');
+  };
+
   return (
     <Container>
       <Row className="justify-content-md-center">
@@ -59,10 +63,18 @@ const Login = () => {
                 required
               />
             </Form.Group>
+            
             <Button variant="primary" type="submit" className="mt-3">
               Login
             </Button>
           </Form>
+        
+          <div className="flex justify-center align-items-baseline mt-4">
+          <p className="m-2">Not a user?</p>
+          <Button variant="primary" type="submit" className="m-2" onClick={handleRegister}>
+                Register
+            </Button>
+          </div>
         </Col>
       </Row>
     </Container>

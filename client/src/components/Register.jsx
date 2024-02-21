@@ -28,6 +28,9 @@ const Register = () => {
       alert("Registration failed.");
     }
   };
+  const handleRegister = () => {
+    navigate('/login');
+  };
 
   return (
     <Container>
@@ -81,10 +84,16 @@ const Register = () => {
               </Form.Control>
             </Form.Group>
 
-            <Button variant="primary" type="submit">
+            <Button className="mt-4" variant="primary" type="submit">
               Register
             </Button>
           </Form>
+          <div className="flex justify-center align-items-baseline mt-4">
+        <p className="m-2">Already a user?</p>
+        <Button variant="primary" type="submit" className="m-2" onClick={handleRegister}>
+              Login
+          </Button>
+        </div>
         </Col>
       </Row>
     </Container>
