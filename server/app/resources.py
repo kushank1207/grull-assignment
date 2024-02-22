@@ -47,7 +47,7 @@ class UserLogin(Resource):
 quest_parser = reqparse.RequestParser()
 quest_parser.add_argument('title', required=True, help="Title cannot be blank.")
 quest_parser.add_argument('description', required=True, help="Description cannot be blank.")
-quest_parser.add_argument('Fees', type=int, required=True, help="Fees cannot be blank.")
+quest_parser.add_argument('fees', type=int, required=True, help="Fees cannot be blank.")
 quest_parser.add_argument('start_time', required=False, help="Start time is optional.")
 quest_parser.add_argument('end_time', required=True, help="End time cannot be blank.")
 
@@ -76,7 +76,7 @@ class QuestList(Resource):
                 'fees': q.fees,
                 'start_time': q.start_time.isoformat(),
                 'end_time': q.end_time.isoformat(),
-                'duration': duration  # Duration in hours
+                'duration': duration 
             })
         return quests_data, 200
     
@@ -88,18 +88,17 @@ class QuestList(Resource):
             return {'message': 'Unauthorized'}, 403
         
         data = quest_parser.parse_args()
-        # Parse start_time and end_time from the request
         start_time = data.get('start_time')
         if start_time:
             start_time = datetime.fromisoformat(start_time)
         else:
-            start_time = datetime.now(timezone.utc)  # Use timezone-aware datetime
+            start_time = datetime.now(timezone.utc) 
         end_time = datetime.fromisoformat(data['end_time'])
 
         new_quest = Quest(
             title=data['title'], 
             description=data['description'], 
-            fees=data['Fees'],  # Ensure this matches the correct field name
+            fees=data['fees'], 
             manager_id=user_id, 
             start_time=start_time, 
             end_time=end_time
@@ -131,6 +130,11 @@ class ApplyToQuest(Resource):
     def post(self, quest_id):
         user_id = get_jwt_identity()
         parser = reqparse.RequestParser()
+
+        application_exists = Application.query.filter_by(user_id=user_id, quest_id=quest_id).first()
+        if application_exists:
+            return {'message': 'Application already submitted'}, 400
+        
         parser.add_argument('application_text', required=True, help="Application text cannot be blank.")
         args = parser.parse_args()
         
