@@ -1,10 +1,11 @@
-from .models import User, Quest, Application 
+from .models import User, Quest, Application, Schedule
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from flask_restful import Resource, reqparse
 from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import jwt
 from flask import jsonify
+from datetime import datetime, timezone
 
 user_parser = reqparse.RequestParser()
 user_parser.add_argument('username', required=True, help="Username cannot be blank.")
@@ -46,7 +47,10 @@ class UserLogin(Resource):
 quest_parser = reqparse.RequestParser()
 quest_parser.add_argument('title', required=True, help="Title cannot be blank.")
 quest_parser.add_argument('description', required=True, help="Description cannot be blank.")
-quest_parser.add_argument('reward', type=int, required=True, help="Reward cannot be blank.")
+quest_parser.add_argument('Fees', type=int, required=True, help="Fees cannot be blank.")
+quest_parser.add_argument('start_time', required=False, help="Start time is optional.")
+quest_parser.add_argument('end_time', required=True, help="End time cannot be blank.")
+
 
 class QuestList(Resource):
     @jwt_required()
@@ -54,30 +58,57 @@ class QuestList(Resource):
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
         if not user:
-            # Directly return a dictionary; Flask-RESTful will handle serialization
             return {'message': 'User not found'}, 404
-        
+
         if user.role == 'community_manager':
             quests = Quest.query.filter_by(manager_id=user_id).all()
         else:
             quests = Quest.query.all()
 
-        quests_data = [{'id': q.id, 'title': q.title, 'description': q.description, 'reward': q.reward} for q in quests]
-        return quests_data, 200
+        quests_data = []
+        for q in quests:
+            duration = (q.end_time - q.start_time).total_seconds() / 3600
 
+            quests_data.append({
+                'id': q.id,
+                'title': q.title,
+                'description': q.description,
+                'fees': q.fees,
+                'start_time': q.start_time.isoformat(),
+                'end_time': q.end_time.isoformat(),
+                'duration': duration  # Duration in hours
+            })
+        return quests_data, 200
+    
     @jwt_required()
     def post(self):
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
         if not user or user.role != 'community_manager':
-            return jsonify({'message': 'Unauthorized'}), 403
+            return {'message': 'Unauthorized'}, 403
         
         data = quest_parser.parse_args()
-        new_quest = Quest(title=data['title'], description=data['description'], reward=data['reward'], manager_id=user_id)
+        # Parse start_time and end_time from the request
+        start_time = data.get('start_time')
+        if start_time:
+            start_time = datetime.fromisoformat(start_time)
+        else:
+            start_time = datetime.now(timezone.utc)  # Use timezone-aware datetime
+        end_time = datetime.fromisoformat(data['end_time'])
+
+        new_quest = Quest(
+            title=data['title'], 
+            description=data['description'], 
+            fees=data['Fees'],  # Ensure this matches the correct field name
+            manager_id=user_id, 
+            start_time=start_time, 
+            end_time=end_time
+        )
+        
         try:
             db.session.add(new_quest)
             db.session.commit()
-            return {'message': 'Quest created successfully', 'quest_id': new_quest.id}, 201
+            # Prepare a serializable dictionary for the response
         except Exception as e:
             db.session.rollback()
             return {'message': 'Failed to create quest', 'error': str(e)}, 500
@@ -153,22 +184,22 @@ class ApplicationUpdate(Resource):
         if status not in ['pending', 'approved', 'rejected']:
             return {'message': 'Invalid status value'}, 400
 
-        user_id = get_jwt_identity()
         application = Application.query.get_or_404(application_id)
-
-        # ensuring whether the user is the manager of the quest
-        quest = Quest.query.get_or_404(application.quest_id)
-        if quest.manager_id != user_id:
-            return {'message': 'Unauthorized'}, 403
-
         application.status = status
-        db.session.commit()
-        return {'message': 'Application status updated successfully'}
 
+        if status == 'approved':
+            quest = Quest.query.get_or_404(application.quest_id)
+            schedule = Schedule(
+                quest_id=quest.id, 
+                user_id=application.user_id, 
+                start_time=quest.start_time, 
+                end_time=quest.end_time
+            )
+            db.session.add(schedule)
 
-class UploadCSV(Resource):
-    pass
-    
-    # @app.errorhandler(400)
-    # def bad_request(error):
-    #     return jsonify({'error': 'Bad request', 'message': str(error)}), 400
+        try:
+            db.session.commit()
+            return {'message': 'Application status updated successfully'}, 200
+        except Exception as e:
+            db.session.rollback()
+            return {'message': 'Failed to update application status', 'error': str(e)}, 500
