@@ -3,8 +3,8 @@ import axios from 'axios';
 const API_URL = process.env.REACT_APP_API_URL;
 
 
-export const register = (username, password, specialization) => {
-  return axios.post(`${API_URL}/api/register`, { username, password, specialization });
+export const register = (username, password, specialization, role) => {
+  return axios.post(`${API_URL}/api/register`, { username, password, specialization, role});
 };
 
 export const login = (username, password) => {
@@ -19,8 +19,8 @@ export const fetchQuests = (token) => {
   });
 };
 
-export const createQuest = (title, description, reward, token) => {
-  return axios.post(`${API_URL}/api/quests`, { title, description, reward }, {
+export const createQuest = (title, description, fees, start_time, end_time, token) => {
+  return axios.post(`${API_URL}/api/quests`, { title, description, fees, start_time, end_time }, {
     headers: { Authorization: `Bearer ${token}` }
   });
 };
@@ -32,18 +32,7 @@ export const applyForQuest = (questId, applicationText, token) => {
   });
 };
 
-export const updateQuest = (token, questId, questData) => {
-  return axios.put(`${API_URL}/quests/${questId}`, questData, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-};
-
-export const fetchQuestDetails = (token, questId) => {
-  return axios.get(`${API_URL}/quests/${questId}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-};
-
+// fetch quests by manager id
 export const getManagerQuests = async (token) => {
   return axios.get(`${API_URL}/api/quests`, {
     headers: { Authorization: `Bearer ${token}` }

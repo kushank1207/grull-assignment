@@ -19,17 +19,22 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // The role is included here, and should be handled accordingly in the backend
-      await register(newUser.username, newUser.password, newUser.specialization, newUser.role);
+      console.log("Registering user:", newUser);
+      await register(
+        newUser.username,
+        newUser.password,
+        newUser.specialization,
+        newUser.role
+      );
       alert("Registration successful!");
-      navigate('/login'); // Navigate to the login page after successful registration
+      navigate("/login");
     } catch (error) {
       console.error("Error during registration:", error.response.data);
       alert("Registration failed.");
     }
   };
   const handleRegister = () => {
-    navigate('/login');
+    navigate("/login");
   };
 
   return (
@@ -89,11 +94,16 @@ const Register = () => {
             </Button>
           </Form>
           <div className="flex justify-center align-items-baseline mt-4">
-        <p className="m-2">Already a user?</p>
-        <Button variant="primary" type="submit" className="m-2" onClick={handleRegister}>
+            <p className="m-2">Already a user?</p>
+            <Button
+              variant="primary"
+              type="submit"
+              className="m-2"
+              onClick={handleRegister}
+            >
               Login
-          </Button>
-        </div>
+            </Button>
+          </div>
         </Col>
       </Row>
     </Container>

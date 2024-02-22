@@ -23,7 +23,6 @@ const UserDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchType, setSearchType] = useState("exact");
 
-
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -34,9 +33,11 @@ const UserDashboard = () => {
     const fetchData = async () => {
       try {
         const questsResponse = await fetchQuests(token);
-        setAllQuests(questsResponse.data); // Save all quests before filtering
-        setQuests(questsResponse.data); // Initialize quests with all quests
+        setAllQuests(questsResponse.data);
+        setQuests(questsResponse.data);
         const applicationsResponse = await fetchUserApplications(token);
+        console.log("applicationsResponse", applicationsResponse.data);
+        console.log("questsResponse", questsResponse.data);
         setApplications(applicationsResponse.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -55,10 +56,7 @@ const UserDashboard = () => {
         quest.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     } else if (searchType === "fuzzy") {
-      // Use fuzzySearchEnhanced for fuzzy search
       filteredQuests = fuzzySearchEnhanced(searchTerm, allQuests);
-    } else if (searchType === "NLP") {
-      // Implement NLP search logic here
     }
     setQuests(filteredQuests);
   }, [searchTerm, searchType, allQuests]);
@@ -72,7 +70,17 @@ const UserDashboard = () => {
 
     try {
       await applyForQuest(questId, "Applying for quest", token);
-      alert("Applied successfully!");
+      // alert("Applied successfully!");
+      const newApplication = {
+        quest_id: questId,
+        status: "Pending",
+      };
+
+      setApplications((prevApplications) => [
+        ...prevApplications,
+        newApplication,
+      ]);
+
       const applicationsResponse = await fetchUserApplications(token);
       setApplications(applicationsResponse.data);
     } catch (error) {
@@ -87,7 +95,9 @@ const UserDashboard = () => {
 
   return (
     <div className="container">
-      <h1>User Dashboard</h1>
+      <h1 className="my-4 text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+        User Dashboard
+      </h1>
       <InputGroup className="mb-3">
         <Form.Control
           placeholder="Search quests..."
@@ -105,9 +115,6 @@ const UserDashboard = () => {
           <Dropdown.Item onClick={() => setSearchType("fuzzy")}>
             Fuzzy
           </Dropdown.Item>
-          <Dropdown.Item onClick={() => setSearchType("NLP")}>
-            NLP
-          </Dropdown.Item>
         </DropdownButton>
       </InputGroup>
       <Row>
@@ -115,22 +122,45 @@ const UserDashboard = () => {
           const applicationForQuest = applications.find(
             (app) => app.quest_id === quest.id
           );
+          const isApplied = Boolean(applicationForQuest);
+
+          const statusClasses = {
+            approved: "text-green-500",
+            rejected: "text-red-500",
+            pending: "text-yellow-500",
+          };
+
+          const statusClass = applicationForQuest?.status
+            ? statusClasses[applicationForQuest.status.toLowerCase()]
+            : "";
+
           return (
-            <Col md={4} key={quest.id}>
-              <Card className="mb-4">
-                <Card.Body>
-                  <Card.Title>{quest.title}</Card.Title>
-                  <Card.Text>{quest.description}</Card.Text>
-                  <Card.Text>Reward: {quest.reward} points</Card.Text>
-                  {applicationForQuest && (
-                    <Card.Text>Status: {applicationForQuest.status}</Card.Text>
-                  )}
+            <Col md={4} key={quest.id} className="mb-4">
+              <Card className="shadow-lg rounded-lg">
+                <Card.Body className="flex flex-col items-start p-4">
+                  <h5 className="mt-4 text-xl font-bold text-gray-900">
+                    {quest.title}
+                  </h5>
+                  <p className="mt-2 text-gray-500">{quest.description}</p>
+                  <p className={`mt-2 font-semibold ${statusClass}`}>
+                    Status:{" "}
+                    {applicationForQuest?.status?.toUpperCase() ??
+                      "Not Applied"}
+                  </p>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Event Date: {new Date(quest.start_time).toLocaleString()} -{" "}
+                    {new Date(quest.end_time).toLocaleString()}
+                  </p>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Duration: {quest.duration} hr
+                  </p>
                   <Button
-                    variant={applicationForQuest ? "secondary" : "primary"}
+                    variant={isApplied ? "secondary" : "primary"}
+                    className="mt-auto w-100 font-bold py-2 px-4 rounded"
                     onClick={() => handleApply(quest.id)}
-                    disabled={!!applicationForQuest}
+                    disabled={isApplied}
                   >
-                    {applicationForQuest ? "Applied" : "Apply"}
+                    {isApplied ? "Applied" : "Apply"}
                   </Button>
                 </Card.Body>
               </Card>
