@@ -4,7 +4,7 @@ from datetime import datetime
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(512), nullable=False)  # Store hashed passwords
+    password = db.Column(db.String(512), nullable=False)
     specialization = db.Column(db.String(120))
     role = db.Column(db.String())
     applications = db.relationship('Application', back_populates='user')

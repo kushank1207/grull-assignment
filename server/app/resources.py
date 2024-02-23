@@ -107,7 +107,6 @@ class QuestList(Resource):
         try:
             db.session.add(new_quest)
             db.session.commit()
-            # Prepare a serializable dictionary for the response
         except Exception as e:
             db.session.rollback()
             return {'message': 'Failed to create quest', 'error': str(e)}, 500
