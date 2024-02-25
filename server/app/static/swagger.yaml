@@ -1,13 +1,19 @@
 swagger: "2.0"
 info:
   title: Grull API Docs
+  description: API documentation for Grull.
   version: "1.0.0"
 host: grull-backend.onrender.com
 basePath: /api
 
+tags:
+  - name: API Endpoints
+    
 paths:
   /register:
     post:
+      tags:
+        - API Endpoints
       summary: Register a new user
       parameters:
         - in: body
@@ -39,6 +45,8 @@ paths:
 
   /login:
     post:
+      tags:
+        - API Endpoints
       summary: User login
       parameters:
         - in: body
@@ -69,6 +77,8 @@ paths:
 
   /quests:
     get:
+      tags:
+        - API Endpoints
       summary: List all quests
       responses:
         '200':
@@ -78,6 +88,8 @@ paths:
             items:
               $ref: '#/definitions/Quest'
     post:
+      tags:
+        - API Endpoints
       summary: Create a new quest
       parameters:
         - in: body
@@ -93,6 +105,8 @@ paths:
 
   /quests/{quest_id}/apply:
     post:
+      tags:
+        - API Endpoints
       summary: Apply to a quest
       parameters:
         - name: quest_id
@@ -110,9 +124,24 @@ paths:
       responses:
         '201':
           description: Application submitted successfully
+  /quests/{quest_id}/applications:
+    get:
+      tags:
+        - API Endpoints
+      summary: Retrieve applications for a specific quest
+      parameters:
+        - name: quest_id
+          in: path
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: A list of applications for the quest
 
   /applications/{application_id}/{status}:
     put:
+      tags:
+        - API Endpoints
       summary: Update application status
       parameters:
         - name: application_id
@@ -131,20 +160,10 @@ paths:
         '200':
           description: Application status updated successfully
 
-  /quests/{quest_id}/applications:
-    get:
-      summary: Retrieve applications for a specific quest
-      parameters:
-        - name: quest_id
-          in: path
-          required: true
-          type: integer
-      responses:
-        '200':
-          description: A list of applications for the quest
-
   /user/applications:
     get:
+      tags:
+        - API Endpoints
       summary: Retrieve all applications of the user
       responses:
         '200':
