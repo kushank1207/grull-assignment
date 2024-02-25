@@ -1,0 +1,232 @@
+swagger: "2.0"
+info:
+  title: Grull API Docs
+  version: "1.0.0"
+host: grull-backend.onrender.com
+basePath: /api
+
+paths:
+  /register:
+    post:
+      summary: Register a new user
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+              password:
+                type: string
+              specialization:
+                type: string
+              role:
+                type: string
+                enum:
+                  - user
+                  - community_manager
+            required:
+              - username
+              - password
+              - role
+      responses:
+        '201':
+          description: User created successfully
+        '400':
+          description: User with that username already exists
+
+  /login:
+    post:
+      summary: User login
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+              password:
+                type: string
+            required:
+              - username
+              - password
+      responses:
+        '200':
+          description: Successful login
+          schema:
+            type: object
+            properties:
+              access_token:
+                type: string
+              role:
+                type: string
+        '401':
+          description: Invalid credentials
+
+  /quests:
+    get:
+      summary: List all quests
+      responses:
+        '200':
+          description: A list of quests
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Quest'
+    post:
+      summary: Create a new quest
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/Quest'
+      responses:
+        '200':
+          description: Quest created successfully
+        '403':
+          description: Unauthorized
+
+  /quests/{quest_id}/apply:
+    post:
+      summary: Apply to a quest
+      parameters:
+        - name: quest_id
+          in: path
+          required: true
+          type: integer
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              application_text:
+                type: string
+      responses:
+        '201':
+          description: Application submitted successfully
+
+  /applications/{application_id}/{status}:
+    put:
+      summary: Update application status
+      parameters:
+        - name: application_id
+          in: path
+          required: true
+          type: integer
+        - name: status
+          in: path
+          required: true
+          type: string
+          enum:
+            - pending
+            - approved
+            - rejected
+      responses:
+        '200':
+          description: Application status updated successfully
+
+  /quests/{quest_id}/applications:
+    get:
+      summary: Retrieve applications for a specific quest
+      parameters:
+        - name: quest_id
+          in: path
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: A list of applications for the quest
+
+  /user/applications:
+    get:
+      summary: Retrieve all applications of the user
+      responses:
+        '200':
+          description: A list of user applications
+
+definitions:
+  User:
+    type: object
+    properties:
+      id:
+        type: integer
+      username:
+        type: string
+      password:
+        type: string
+      specialization:
+        type: string
+      role:
+        type: string
+        enum:
+          - user
+          - community_manager
+    required:
+      - username
+      - password
+      - role
+
+  Quest:
+    type: object
+    properties:
+      id:
+        type: integer
+      title:
+        type: string
+      description:
+        type: string
+      fees:
+        type: integer
+      manager_id:
+        type: integer
+      start_time:
+        type: string
+        format: date-time
+      end_time:
+        type: string
+        format: date-time
+    required:
+      - title
+      - description
+      - fees
+      - manager_id
+      - end_time
+
+  Application:
+    type: object
+    properties:
+      id:
+        type: integer
+      quest_id:
+        type: integer
+      user_id:
+        type: integer
+      status:
+        type: string
+        enum:
+          - pending
+          - approved
+          - rejected
+      application_text:
+        type: string
+  Schedule:
+    type: object
+    properties:
+      id:
+        type: integer
+      quest_id:
+        type: integer
+      user_id:
+        type: integer
+      start_time:
+        type: string
+        format: date-time
+      end_time:
+        type: string
+        format: date-time
