@@ -22,7 +22,7 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
 
-    # Initialize Flasgger with your Flask app
+    # Initialize Flasgger with Flask app
     Swagger(app, template_file='static/swagger.yaml')
 
     with app.app_context():

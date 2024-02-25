@@ -4,6 +4,9 @@
 
 This project was developed as an assignment for Grull.work, aimed to create a basic MVP working model. 
 
+## Api Docs
+The API documentation is available at the following link: https://grull-backend.onrender.com/apidocs/
+
 ## Features
 
 - **User Registration/Signup**: Allows new users to register with a role assignment option of either 'user' or 'community-manager'.
