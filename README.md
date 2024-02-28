@@ -110,5 +110,8 @@ JWT_SECRET_KEY='your_jwt_secret_key_here'
 SQLALCHEMY_DATABASE_URI='your_database_url_here'
 ```
 
+## Screenshots
 
+![Screenshot 2024-02-28 at 12.21.27](/Users/kushanksingh/Library/Application Support/typora-user-images/Screenshot 2024-02-28 at 12.21.27.png)
 
+![Screenshot 2024-02-28 at 12.22.30](/Users/kushanksingh/Library/Application Support/typora-user-images/Screenshot 2024-02-28 at 12.22.30.png)
