@@ -112,6 +112,6 @@ SQLALCHEMY_DATABASE_URI='your_database_url_here'
 
 ## Screenshots
 
-![Screenshot 2024-02-28 at 12.21.27](/Users/kushanksingh/Library/Application Support/typora-user-images/Screenshot 2024-02-28 at 12.21.27.png)
+![Screenshot 2024-02-28 at 12.21.27](./server/screenshots/Screenshot%202024-02-28%20at%2012.25.04.png)
 
-![Screenshot 2024-02-28 at 12.22.30](/Users/kushanksingh/Library/Application Support/typora-user-images/Screenshot 2024-02-28 at 12.22.30.png)
+![Screenshot 2024-02-28 at 12.22.30](./server/screenshots/Screenshot%202024-02-28%20at%2012.24.57.png)
